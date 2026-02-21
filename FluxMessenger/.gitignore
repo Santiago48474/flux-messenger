@@ -1,0 +1,12 @@
+# Системные файлы Termux
+.cache/
+.ssh/
+.termux/
+storage/
+.bash_history
+.bashrc
+.gitconfig
+python-env/
+venv/
+__pycache__/
+*.pyc
