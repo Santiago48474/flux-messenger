@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flux Messenger</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #0a0c10;
+            color: white;
+            min-height: 100vh;
+            padding: 16px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ========== ТЕМЫ ========== */
+        .theme-black { background: #000; color: #fff; }
+        .theme-black .card { background: #1a1a1a; }
+        
+        .theme-white { background: #fff; color: #000; }
+        .theme-white .card { background: #f0f0f0; }
+        .theme-white input { background: #e0e0e0; color: #000; }
+        
+        .theme-pink { background: #ff69b4; color: #fff; }
+        .theme-pink .card { background: #ff8ac7; }
+        
+        .theme-blue { background: #2196F3; color: #fff; }
+        .theme-blue .card { background: #42a5f5; }
+        
+        .theme-lightblue { background: #87CEEB; color: #000; }
+        .theme-lightblue .card { background: #b0e0ff; }
+        
+        .theme-gray { background: #808080; color: #fff; }
+        .theme-gray .card { background: #a0a0a0; }
+        
+        .theme-blackwhite { 
+            background: #000; 
+            color: #fff; 
+            filter: grayscale(100%);
+        }
+
+        /* ========== КАРТОЧКИ ========== */
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 20px;
+            margin: 16px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        h2 { font-size: 24px; margin-bottom: 12px; }
+        h3 { font-size: 18px; margin-bottom: 12px; }
+
+        input, button {
+            width: 100%;
+            padding: 16px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button.secondary {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* ========== НАВИГАЦИЯ ========== */
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px;
+            border-radius: 50px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-weight: 600;
+        }
+
+        /* ========== ПРОФИЛЬ ========== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        .user-id {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-family: monospace;
+            font-size: 14px;
+            display: inline-block;
+            margin-top: 8px;
+        }
+
+        /* ========== ТЕМЫ ========== */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .theme-btn {
+            padding: 12px 4px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.2s;
+        }
+
+        .theme-btn.active {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        /* цветные кнопки тем */
+        .theme-preview-black { background: #000; color: #fff; }
+        .theme-preview-white { background: #fff; color: #000; border: 1px solid #ccc; }
+        .theme-preview-pink { background: #ff69b4; color: #fff; }
+        .theme-preview-blue { background: #2196F3; color: #fff; }
+        .theme-preview-lightblue { background: #87CEEB; color: #000; }
+        .theme-preview-gray { background: #808080; color: #fff; }
+        .theme-preview-blackwhite { background: #000; color: #fff; filter: grayscale(100%); }
+
+        /* ========== СООБЩЕНИЯ ========== */
+        .messages-area {
+            height: 300px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .message {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 14px;
+            margin: 8px 0;
+            border-radius: 18px;
+            max-width: 80%;
+        }
+
+        .message.own {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-left: auto;
+        }
+
+        .hidden { display: none !important; }
+        .flex { display: flex; gap: 8px; align-items: center; }
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body class="theme-black">
+    <div class="container">
+        <div class="flex" style="justify-content: space-between;">
+            <h1>⚡FLUX</h1>
+            <span class="badge">v0.1</span>
+        </div>
+
+        <!-- ЭКРАН ВХОДА -->
+        <div id="authScreen">
+            <div class="card">
+                <h3>🚀 Добро пожаловать!</h3>
+                <input type="email" id="email" placeholder="Email" value="test@test.com">
+                <input type="text" id="username" placeholder="Имя" value="Santiago">
+                <input type="password" id="password" placeholder="Пароль" value="123">
+                <button onclick="register()">Зарегистрироваться</button>
+                <button class="secondary" onclick="login()">Войти</button>
+            </div>
+        </div>
+
+        <!-- ОСНОВНОЙ ЭКРАН -->
+        <div id="mainScreen" class="hidden">
+            <!-- Навигация -->
+            <div class="tab-bar">
+                <div class="tab active" onclick="switchTab('chat')">Чат</div>
+                <div class="tab" onclick="switchTab('profile')">Профиль</div>
+                <div class="tab" onclick="switchTab('shop')">Магазин</div>
+                <div class="tab" onclick="switchTab('settings')">Настройки</div>
+            </div>
+
+            <!-- ВКЛАДКА ЧАТ -->
+            <div id="tabChat">
+                <div class="card">
+                    <div class="flex" style="justify-content: space-between;">
+                        <h3>💬 Сообщения</h3>
+                        <span class="badge">Online</span>
+                    </div>
+                    
+                    <div class="flex">
+                        <input type="text" id="toUser" placeholder="Кому (ID)">
+                        <button onclick="loadMessages()" style="width: auto;">🔄</button>
+                    </div>
+                    
+                    <div class="messages-area" id="messages"></div>
+                    
+                    <div class="flex">
+                        <input type="text" id="messageText" placeholder="Сообщение">
+                        <button onclick="sendMessage()">➤</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ВКЛАДКА ПРОФИЛЬ -->
+            <div id="tabProfile" class="hidden">
+                <div class="card">
+                    <div style="text-align: center;">
+                        <div style="width: 80px; height: 80px; border-radius: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin: 0 auto 12px;"></div>
+                        <h2 id="profileName">Загрузка...</h2>
+                        <div class="badge" id="profileBadge">Обычный</div>
+                        <div class="user-id" id="userId">ID: загрузка...</div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="statThanks">0</div>
+                            <div class="stat-label">Спасибо</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statAfk">0</div>
+                            <div class="stat-label">AFK</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statFlux">0</div>
+                            <div class="stat-label">Flux</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statRating">0</div>
+                            <div class="stat-label">Рейтинг</div>
+                        </div>
+                    </div>
+
+                    <button onclick="getDaily()">🎁 Получить Спасибо (ежедневно)</button>
+
+                    <h3 style="margin-top: 20px;">📊 Активность</h3>
+                    <div class="flex" style="justify-content: space-between;">
+                        <button class="secondary" onclick="buyRating(1)" style="flex:1; margin-right:5px;">+1 рейтинг<br><small>2 Спасибо</small></button>
+                        <button class="secondary" onclick="buyRating(5)" style="flex:1; margin-right:5px;">+5 рейтинг<br><small>10 Спасибо</small></button>
+                        <button class="secondary" onclick="buyRating(10)" style="flex:1;">+10 рейтинг<br><small>20 Спасибо</small></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ВКЛАДКА МАГАЗИН -->
+            <div id="tabShop" class="hidden">
+                <div class="card">
+                    <h3>🏪 Магазин Flux</h3>
+                    
+                    <div style="margin: 20px 0;">
+                        <h4>💎 AFK Коин</h4>
+                        <p style="opacity:0.7;">1 AFK = 10 Спасибо</p>
+                        <div class="flex">
+                            <button onclick="buyAfkCoin(1)" style="flex:1; margin-right:5px;">1 AFK</button>
+                            <button onclick="buyAfkCoin(5)" style="flex:1;">5 AFK</button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 20px 0;">
+                        <h4>👑 Flux Premium</h4>
+                        <p style="opacity:0.7;">100 Fluxkoin</p>
+                        <button onclick="buyPremium()">Купить Premium</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ВКЛАДКА НАСТРОЙКИ -->
+            <div id="tabSettings" class="hidden">
+                <div class="card">
+                    <h3>🎨 Тема оформления</h3>
+                    <div class="theme-grid">
+                        <div class="theme-btn theme-preview-black" onclick="setTheme('black')">Черная</div>
+                        <div class="theme-btn theme-preview-white" onclick="setTheme('white')">Белая</div>
+                        <div class="theme-btn theme-preview-pink" onclick="setTheme('pink')">Розовая</div>
+                        <div class="theme-btn theme-preview-blue" onclick="setTheme('blue')">Синяя</div>
+                        <div class="theme-btn theme-preview-lightblue" onclick="setTheme('lightblue')">Голубая</div>
+                        <div class="theme-btn theme-preview-gray" onclick="setTheme('gray')">Серая</div>
+                        <div class="theme-btn theme-preview-blackwhite" onclick="setTheme('blackwhite')">Ч/Б</div>
+                    </div>
+                    
+                    <h3 style="margin-top: 20px;">👤 Статус</h3>
+                    <select id="userStatus" onchange="setStatus(this.value)" style="width:100%; padding:12px;">
+                        <option value="online">🟢 Онлайн</option>
+                        <option value="offline">⚫ Офлайн</option>
+                        <option value="afk">🟡 AFK</option>
+                    </select>
+                    
+                    <button onclick="logout()" style="margin-top: 20px; background: #f44336;">Выйти</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ НАСТРОЙКИ ============
+        const API = 'http://192.168.0.18:5000';  // ТВОЙ IP
+        let currentUser = null;
+        let currentTab = 'chat';
+
+        // ============ ТЕСТ СЕРВЕРА ============
+        async function testServer() {
+            try {
+                const res = await fetch(API + '/api/test');
+                const data = await res.json();
+                alert('✅ Сервер работает!\n' + JSON.stringify(data));
+            } catch(e) {
+                alert('❌ Сервер не отвечает!\nЗапусти сервер: python app.py');
+            }
+        }
+
+        // ============ РЕГИСТРАЦИЯ ============
+        async function register() {
+            const email = document.getElementById('email').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const res = await fetch(API + '/api/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email, username, password})
+                });
+                const data = await res.json();
+                alert(data.message);
+            } catch(e) {
+                alert('Ошибка: ' + e.message);
+            }
+        }
+
+        // ============ ВХОД ============
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const res = await fetch(API + '/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email, password})
+                });
+                const data = await res.json();
+                
+                if (data.status === 'ok') {
+                    currentUser = data.user_id;
+                    localStorage.setItem('flux_user', currentUser);
+                    
+                    document.getElementById('authScreen').classList.add('hidden');
+                    document.getElementById('mainScreen').classList.remove('hidden');
+                    
+                    document.getElementById('profileName').innerText = data.user.username;
+                    document.getElementById('userId').innerText = 'ID: ' + data.user_id;
+                    
+                    loadUserData();
+                    loadMessages();
+                    
+                    setInterval(loadMessages, 3000);
+                } else {
+                    alert('Ошибка: ' + data.message);
+                }
+            } catch(e) {
+                alert('Ошибка: ' + e.message);
+            }
+        }
+
+        // ============ ЗАГРУЗКА ДАННЫХ ============
+        async function loadUserData() {
+            if (!currentUser) return;
+            
+            try {
+                const res = await fetch(API + '/api/user/' + currentUser);
+                const user = await res.json();
+                
+                document.getElementById('statThanks').innerText = user.thanks || 0;
+                document.getElementById('statAfk').innerText = user.afk || 0;
+                document.getElementById('statFlux').innerText = user.flux || 0;
+                document.getElementById('statRating').innerText = user.rating || 0;
+                
+                if (user.premium) {
+                    document.getElementById('profileBadge').innerText = '👑 Premium';
+                }
+                
+                if (user.theme) {
+                    document.body.className = 'theme-' + user.theme;
+                }
+            } catch(e) {}
+        }
+
+        // ============ ЧАТ ============
+        async function sendMessage() {
+            const text = document.getElementById('messageText').value;
+            const to = document.getElementById('toUser').value;
+            
+            if (!text || !to || !currentUser) return;
+            
+            try {
+                await fetch(API + '/api/chat/send', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({from: currentUser, to, text})
+                });
+                
+                document.getElementById('messageText').value = '';
+                loadMessages();
+            } catch(e) {}
+        }
+
+        async function loadMessages() {
+            if (!currentUser) return;
+            
+            try {
+                const res = await fetch(API + '/api/chat/messages/' + currentUser);
+                const msgs = await res.json();
+                
+                const chatDiv = document.getElementById('messages');
+                chatDiv.innerHTML = msgs.reverse().map(m => {
+                    const isOwn = m.from === currentUser;
+                    return `<div class="message ${isOwn ? 'own' : ''}">
+                        <b>${m.from}:</b> ${m.text}
+                        <div style="font-size:10px;">${new Date(m.time*1000).toLocaleTimeString()}</div>
+                    </div>`;
+                }).join('');
+            } catch(e) {}
+        }
+
+        // ============ ЭКОНОМИКА ============
+        async function getDaily() {
+            const res = await fetch(API + '/api/currency/daily/' + currentUser);
+            const data = await res.json();
+            alert(data.message);
+            loadUserData();
+        }
+
+        async function buyAfkCoin(amount) {
+            const res = await fetch(API + '/api/currency/buy_afk', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user_id: currentUser, amount})
+            });
+            const data = await res.json();
+            alert(data.message);
+            loadUserData();
+        }
+
+        async function buyRating(points) {
+            const res = await fetch(API + '/api/rating/add', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user_id: currentUser, points})
+            });
+            const data = await res.json();
+            alert(data.message);
+            loadUserData();
+        }
+
+        async function buyPremium() {
+            const res = await fetch(API + '/api/premium/buy', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user_id: currentUser})
+            });
+            const data = await res.json();
+            alert(data.message);
+            loadUserData();
+        }
+
+        // ============ ТЕМЫ ============
+        async function setTheme(theme) {
+            if (!currentUser) {
+                document.body.className = 'theme-' + theme;
+                return;
+            }
+            
+            try {
+                await fetch(API + '/api/theme/set/' + currentUser + '/' + theme);
+                document.body.className = 'theme-' + theme;
+            } catch(e) {}
+        }
+
+        function setStatus(status) {
+            console.log('Статус:', status);
+        }
+
+        // ============ НАВИГАЦИЯ ============
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab')[['chat','profile','shop','settings'].indexOf(tab)].classList.add('active');
+            
+            document.getElementById('tabChat').classList.add('hidden');
+            document.getElementById('tabProfile').classList.add('hidden');
+            document.getElementById('tabShop').classList.add('hidden');
+            document.getElementById('tabSettings').classList.add('hidden');
+            
+            document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
+        }
+
+        // ============ ВЫХОД ============
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('flux_user');
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('mainScreen').classList.add('hidden');
+        }
+
+        // ============ АВТОВХОД ============
+        const savedUser = localStorage.getItem('flux_user');
+        if (savedUser) {
+            currentUser = savedUser;
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('mainScreen').classList.remove('hidden');
+            document.getElementById('userId').innerText = 'ID: ' + savedUser;
+            loadUserData();
+            loadMessages();
+            setInterval(loadMessages, 3000);
+        }
+
+        // Тест сервера при загрузке
+        setTimeout(testServer, 2000);
+    </script>
+</body>
+</html>
